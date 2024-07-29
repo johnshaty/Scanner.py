@@ -5,7 +5,7 @@ import re
 ip_address_pattern = re.compile(r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$")
 port_range_pattern = re.compile("([0-9]+)-([0-9]+)")
 
-port_range = '1-80'
+port_range = '1-65355'
 nm = nmap.PortScanner()
 host_list = []
 
@@ -34,7 +34,7 @@ while True:
 
     host_entered = input("\nEnter Host IPs Separated by commas to Scan: ")
     host_entered_list = host_entered.split(", ")
-    print(host_entered_list)
+    
 
     validIP = True
     for IP in host_entered_list:
@@ -63,15 +63,16 @@ host_objects = [TargetHost(ip) for ip in host_list]
 def open_ports_scan(target_objs):
     for target in target_objs:
         nm.scan(hosts=target.ip, ports=port_range, arguments="-sT")
+        
         target.set_attribute("Open Ports", [])
     
 
         pre_scan_result = nm[target.ip]
 
         for protocol in pre_scan_result.all_protocols():
-            lport = pre_scan_result[protocol].keys()
+            port_list = pre_scan_result[protocol].keys()
 
-            for port in lport:
+            for port in port_list:
                 state = pre_scan_result[protocol][port]["state"]
 
                 if state == "open":
@@ -94,9 +95,9 @@ def main_scan(target_objs):
 
         main_scan_result = nm[target.ip]
         for protocol in main_scan_result.all_protocols():
-            lport = main_scan_result[protocol].keys()
+            port_list = main_scan_result[protocol].keys()
 
-            for port in lport:
+            for port in port_list:
                 state = main_scan_result[protocol][port]["state"]
 
                 if state == "open":
@@ -116,12 +117,20 @@ def main_scan(target_objs):
 
                     target.set_attribute("Port Info", port_info)
 
-        
+
+
+
+
 
 open_ports_scan(host_objects)
 main_scan(host_objects)
 
 for host in host_objects:
-    print("Target Host: " + host.ip)
-    print(host.attributes)
+    print(f"Target Host: {host.ip}\n")
+
+    port_info = host.get_attributes("Port Info")
+    for port, info in port_info.items():
+        product_version = f"{info['Product']} {info['Version']}".strip()
+        print(f"Port: {port}, Product + Version: {product_version}")
+    print("---------------------------------------------------------")
 
