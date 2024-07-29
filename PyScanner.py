@@ -35,7 +35,7 @@ while True:
     host_entered = input("\nEnter Host IPs Separated by commas to Scan: ")
     host_entered_list = host_entered.split(", ")
     print(host_entered_list)
-    # print("Target Host: " + host_entered)
+
     validIP = True
     for IP in host_entered_list:
         if ip_address_pattern.search(IP):
@@ -53,8 +53,7 @@ while True:
     else:
         print("Enter all valid target IPs")
 
-print("--TESTING--")
-# print(host_list)
+
 host_objects = [TargetHost(ip) for ip in host_list]
 
 
@@ -63,8 +62,6 @@ host_objects = [TargetHost(ip) for ip in host_list]
 
 def open_ports_scan(target_objs):
     for target in target_objs:
-        print(target.ip)
-
         nm.scan(hosts=target.ip, ports=port_range, arguments="-sT")
         target.set_attribute("Open Ports", [])
     
@@ -125,5 +122,6 @@ open_ports_scan(host_objects)
 main_scan(host_objects)
 
 for host in host_objects:
-    print(host)
+    print("Target Host: " + host.ip)
+    print(host.attributes)
 
